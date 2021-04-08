@@ -1,0 +1,12 @@
+div#container
+{
+    height: 200px;
+    border: solid 2px green; text-align:center;
+    line-height:200px;
+}
+
+input#verticalButton
+{
+     vertical-align: middle;
+
+}

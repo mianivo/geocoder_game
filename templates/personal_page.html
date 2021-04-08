@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if not current_user.is_authenticated %}
+        <div class="alert alert-danger" role="alert">
+            Вы не авторизированы!
+        </div>
+    {% else %}
+        <table>
+            <tr>
+                <td>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Ник</strong> - {{ current_user.nickname }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Логин</strong> - {{ current_user.login }}
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Рейтинг</strong> - {{ current_user.rating }}
+                    </div>
+                </td>
+
+            </tr>
+
+            <tr>
+                <td>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Количество матчей</strong> - {{ current_user.matches_number }}
+                    </div>
+                </td>
+
+            </tr>
+
+        </table>
+    {% endif %}
+
+{% endblock %}
