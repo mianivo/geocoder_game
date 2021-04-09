@@ -79,20 +79,22 @@ def personal_page():
                                login=login, matches_number=matches_number, rating=rating, current_user=current_user)
 
 
+@app.route('/global_rating/<int:page_number>')
+def rating(page_number=0):
+    print(player_top.global_top_player[20 * page_number:20 * (page_number + 1)])
+    return render_template('rating.html',
+                           rating_list=player_top.global_top_player[20 * page_number:20 * (page_number + 1)],
+                           page_number=page_number,
+                           max_page_number=player_top.global_top_player_len // 20 +
+                                           bool(player_top.global_top_player_len % 20))
+
+
 def main():
     db_session.global_init("db/blog.sqlite")
     app.run()
 
 
-def add_admin():
-    admin = User()
-    admin.nickname = 'andrey'
-    admin.login = 'admin'
-    admin.set_password('12345')
-    db_sess = db_session.create_session()
-    db_sess.add(admin)
-    db_sess.commit()
-
-
-# if __name__ == '__main__': Не работает! (__name__ == 'main')
 main()
+
+# Именно тут, а не вверху. Важен код выполняющийся внутри кода при импортировании
+import scheduled.update_top as player_top
