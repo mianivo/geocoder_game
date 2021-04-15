@@ -8,5 +8,5 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     rating = IntegerField('Рейтинг', validators=[DataRequired()], default=0)
-    matches_number = IntegerField('Рейтинг', validators=[DataRequired()], default=0)
+    matches_number = IntegerField('Количество матчей', validators=[DataRequired()], default=0)
     submit = SubmitField('Войти')

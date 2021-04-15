@@ -1,11 +1,12 @@
 from flask import Flask, redirect, render_template
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+import sqlalchemy
 
 from data import db_session
 from data.users import User
-
 from data.login_form import LoginForm
 from data.register_form import RegistrationForm
+from data.delete_form import DeleteForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -46,6 +47,51 @@ def index():
     return render_template('index.html', title='Авторизация')
 
 
+@app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
+def edit(user_id):
+    form = RegistrationForm()
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    if not form.is_submitted():
+        form.login.data = user.login
+        form.nickname.data = user.nickname
+        form.rating.data = user.rating
+        form.matches_number.data = user.matches_number
+    else:
+        user.login = form.login.data
+        user.nickname = form.nickname.data
+        user.rating = form.rating.data
+        user.matches_number = form.matches_number.data
+        if form.password.data:
+            user.set_password(form.password.data)
+        db_sess.commit()
+        player_top.update_top()
+        return redirect('/admin/0')
+    return render_template('edit.html', title='Авторизация', form=form)
+
+
+@app.route('/delete/<int:user_id>', methods=['GET', 'POST'])
+def delete(user_id):
+    form = DeleteForm()
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    if form.is_submitted() and str(form.confirm.data) == form.confirm.label.text:
+        db_sess.delete(user)
+        db_sess.commit()
+        player_top.update_top()
+        return redirect('/admin/0')
+    return render_template('delete.html', title='Авторизация', user=user, form=form)
+
+
+@app.route('/admin/<int:page_number>')
+def admin(page_number=0):
+    return render_template('admin.html',
+                           rating_list=player_top.global_top_player[20 * page_number:20 * (page_number + 1)],
+                           page_number=page_number,
+                           max_page_number=player_top.global_top_player_len // 20 +
+                                           bool(player_top.global_top_player_len % 20))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -58,6 +104,7 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
+
     return render_template('register.html', title='Авторизация', form=form)
 
 
@@ -81,9 +128,9 @@ def personal_page():
 
 @app.route('/global_rating/<int:page_number>')
 def rating(page_number=0):
-    print(player_top.global_top_player[20 * page_number:20 * (page_number + 1)])
     return render_template('rating.html',
-                           rating_list=player_top.global_top_player[20 * page_number:20 * (page_number + 1)],
+                           rating_list=[(nickname, raitng, matches_number) for nickname, raitng, matches_number, _, _ in
+                                        player_top.global_top_player[20 * page_number:20 * (page_number + 1)]],
                            page_number=page_number,
                            max_page_number=player_top.global_top_player_len // 20 +
                                            bool(player_top.global_top_player_len % 20))
@@ -92,6 +139,7 @@ def rating(page_number=0):
 def main():
     db_session.global_init("db/blog.sqlite")
     app.run()
+
 
 
 main()

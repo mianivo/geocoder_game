@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Редактирование пользователя</h1>
+    <h2>Тут можно ввести любые новые данные пользователя(изначально поля заполнены старыми данными)</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            Введите новый ник пользователя<br>
+            {{ form.nickname(class="form-control") }}<br>
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            Введите новый логин пользователя<br>
+            {{ form.login(class="form-control") }}<br>
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            Введите новый пароль пользователя<br>
+            {{ form.password(class="form-control", type="password") }}<br>
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+            <p>
+            Введите количество матчей пользователя<br>
+            {{ form.matches_number(class="form-control") }}<br>
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            Введите рейтинг пользователя<br>
+            {{ form.rating(class="form-control") }}<br>
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div>{{ message }}</div>
+    </form>
+{% endblock %}

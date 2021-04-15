@@ -8,7 +8,7 @@ from .db_session import SqlAlchemyBase
 
 
 class User(SqlAlchemyBase, UserMixin):
-    __tablename__ = 'users'
+    __tablename__ = 'user'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     nickname = sqlalchemy.Column(sqlalchemy.String, nullable=True)
@@ -17,6 +17,7 @@ class User(SqlAlchemyBase, UserMixin):
     rating = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     matches_number = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     modifed_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
+    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

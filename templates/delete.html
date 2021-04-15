@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form action="" method="post">
+        <div class="alert alert-danger" role="alert">
+            Вы уверены, что хотите удалить пользователя
+            логин - {{ user.login }}
+            ник - {{ user.nickname }}
+            рейтинг - {{ user.rating }}
+            количестов матчей - {{ user.matches_number }}
+        </div>
+        Введите число написанное ниже для подтверждения<br>
+        {{ form.confirm.label }}
+        {{ form.confirm(class="form-control") }}<br>
+        {% for error in form.confirm.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endfor %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div>{{ message }}</div>
+    </form>
+{% endblock %}
