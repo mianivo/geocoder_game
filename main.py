@@ -49,47 +49,61 @@ def index():
 
 @app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit(user_id):
-    form = RegistrationForm()
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == user_id).first()
-    if not form.is_submitted():
-        form.login.data = user.login
-        form.nickname.data = user.nickname
-        form.rating.data = user.rating
-        form.matches_number.data = user.matches_number
+    if current_user._get_current_object().is_admin:
+        form = RegistrationForm()
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if not form.is_submitted():
+            form.login.data = user.login
+            form.nickname.data = user.nickname
+            form.rating.data = user.rating
+            form.matches_number.data = user.matches_number
+        else:
+            user.login = form.login.data
+            user.nickname = form.nickname.data
+            user.rating = form.rating.data
+            user.matches_number = form.matches_number.data
+            if form.password.data:
+                user.set_password(form.password.data)
+            db_sess.commit()
+            player_top.update_top()
+            return redirect('/admin/0')
+        return render_template('edit.html', title='Авторизация', form=form)
     else:
-        user.login = form.login.data
-        user.nickname = form.nickname.data
-        user.rating = form.rating.data
-        user.matches_number = form.matches_number.data
-        if form.password.data:
-            user.set_password(form.password.data)
-        db_sess.commit()
-        player_top.update_top()
-        return redirect('/admin/0')
-    return render_template('edit.html', title='Авторизация', form=form)
+        return 'Вы не администратор!'
 
 
 @app.route('/delete/<int:user_id>', methods=['GET', 'POST'])
 def delete(user_id):
-    form = DeleteForm()
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == user_id).first()
-    if form.is_submitted() and str(form.confirm.data) == form.confirm.label.text:
-        db_sess.delete(user)
-        db_sess.commit()
-        player_top.update_top()
-        return redirect('/admin/0')
-    return render_template('delete.html', title='Авторизация', user=user, form=form)
+    if current_user._get_current_object().is_admin:
+        form = DeleteForm()
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if form.is_submitted() and str(form.confirm.data) == form.confirm.label.text:
+            db_sess.delete(user)
+            db_sess.commit()
+            player_top.update_top()
+            return redirect('/admin/0')
+        return render_template('delete.html', title='Авторизация', user=user, form=form)
+    else:
+        return 'Вы не администратор!'
+
+
+@app.route('/admin')
+def admin_():
+    return redirect('/admin/0')
 
 
 @app.route('/admin/<int:page_number>')
 def admin(page_number=0):
-    return render_template('admin.html',
+    if current_user._get_current_object().is_admin:
+        return render_template('admin.html',
                            rating_list=player_top.global_top_player[20 * page_number:20 * (page_number + 1)],
                            page_number=page_number,
                            max_page_number=player_top.global_top_player_len // 20 +
                                            bool(player_top.global_top_player_len % 20))
+    else:
+        return 'Вы не администратор!'
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -126,6 +140,11 @@ def personal_page():
                                login=login, matches_number=matches_number, rating=rating, current_user=current_user)
 
 
+@app.route('/global_rating')
+def rating_():
+    return redirect('/global_rating/0')
+
+
 @app.route('/global_rating/<int:page_number>')
 def rating(page_number=0):
     return render_template('rating.html',
@@ -138,8 +157,8 @@ def rating(page_number=0):
 
 def main():
     db_session.global_init("db/blog.sqlite")
-    app.run()
 
+    app.run()
 
 
 main()

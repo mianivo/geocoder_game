@@ -17,4 +17,4 @@ def update_top():
 
 
 update_top()
-schedule.every().hour.do(update_top)
+schedule.every().minute.do(update_top)

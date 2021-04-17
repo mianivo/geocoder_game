@@ -40,6 +40,15 @@
 
             </tr>
 
+            {% if current_user.is_admin %}
+                <tr>
+                    <td>
+                        <a class="btn btn-success" href="/admin">Войти в админку</a>
+                    </td>
+                </tr>
+            {% endif %}
+
+
         </table>
     {% endif %}
 
