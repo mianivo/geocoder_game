@@ -4,6 +4,7 @@ import sqlalchemy
 
 from data import db_session
 from data.users import User
+from data.games import Games
 from data.login_form import LoginForm
 from data.register_form import RegistrationForm
 from data.delete_form import DeleteForm
@@ -115,8 +116,16 @@ def register():
         user.nickname = form.nickname.data
         user.login = form.login.data
         user.set_password(form.password.data)
+
         db_sess.add(user)
-        db_sess.commit()
+        try:
+            db_sess.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            if 'user.login' in str(e):
+                form.login.errors = ('Пользователь с таким логином существует', )
+            if 'user.hashed_password' in str(e):
+                form.password.errors = ('Пользователь с таким паролем существует', )
+            return render_template('register.html', title='Регистрация', form=form)
         return redirect('/login')
 
     return render_template('register.html', title='Авторизация', form=form)
@@ -136,8 +145,13 @@ def personal_page():
         login = current_user.login
         matches_number = current_user.matches_number
         rating = current_user.rating
+        db_sess = db_session.create_session()
+        user_game_list = db_sess.query(Games).filter(Games.user_id == current_user.id)
+        if len(list(user_game_list)) > 20:
+            user_game_list = user_game_list[:20]
         return render_template('personal_page.html', nickname=nickname,
-                               login=login, matches_number=matches_number, rating=rating, current_user=current_user)
+                               login=login, matches_number=matches_number, rating=rating, current_user=current_user,
+                               user_game_list=user_game_list)
 
 
 @app.route('/global_rating')

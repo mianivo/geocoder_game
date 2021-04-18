@@ -6,7 +6,7 @@
         <p>
             {{ form.nickname.label }}<br>
             {{ form.nickname(class="form-control") }}<br>
-            {% for error in form.login.errors %}
+            {% for error in form.nickname.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>

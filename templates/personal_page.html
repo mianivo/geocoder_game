@@ -40,6 +40,7 @@
 
             </tr>
 
+
             {% if current_user.is_admin %}
                 <tr>
                     <td>
@@ -50,6 +51,22 @@
 
 
         </table>
+                    {% if user_game_list %}
+                <h1>Последние игры:</h1>
+                {% for game in user_game_list %}
+                    <div class="alert alert-info" role="alert">
+                        <a class="alert-btn btn-link"
+                           href="https://yandex.ru/maps/?ll={{ game.start_point }}&z=13">
+                            Точка выбранная игрой - {{ game.start_point }}
+                        </a><br>
+                        <a class="alert-btn btn-link"
+                           href="https://yandex.ru/maps/?ll={{ game.user_input_point }}&z=13">
+                            Точка выбранная Вами - {{ game.user_input_point }}
+                        </a><br>
+                        Полученный рейтинг - {{ game.rating }}<br>
+                    </div>
+                {% endfor %}
+            {% endif %}
     {% endif %}
 
 {% endblock %}
