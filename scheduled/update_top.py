@@ -17,4 +17,9 @@ def update_top():
 
 
 update_top()
-schedule.every().minute.do(update_top)
+
+
+def schedule_update():
+    schedule.every().minute.do(update_top)
+    while True:
+        schedule.run_pending()

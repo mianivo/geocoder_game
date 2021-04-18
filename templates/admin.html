@@ -4,7 +4,7 @@
     <h1>Рейтинг</h1>
     <p>
         {% for i in range(0, 5 if page_number > 6 else 0) %}
-            <a class="alert-btn btn-link" href="/global_rating/{{ i }}">
+            <a class="alert-btn btn-link" href="/admin/{{ i }}">
                 {{ i + 1 }}
             </a>
         {% endfor %}
@@ -12,13 +12,13 @@
             ...
         {% endif %}
         {% for i in range(page_number - 5 if (page_number - 5 > 0) else 0, page_number + 5 if (page_number + 5 < max_page_number) else max_page_number) %}
-            <a class="alert-btn btn-link" href="/global_rating/{{ i }}">
+            <a class="alert-btn btn-link" href="/admin/{{ i }}">
                 {{ i + 1 }}
             </a>
         {% endfor %}
         ...
         {% for i in range(max_page_number - 3, max_page_number) %}
-            <a class="alert-btn btn-link" href="/global_rating/{{ i }}">
+            <a class="alert-btn btn-link" href="/admin/{{ i }}">
                 {{ i + 1 }}
             </a>
         {% endfor %}

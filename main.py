@@ -8,6 +8,8 @@ from data.games import Games
 from data.login_form import LoginForm
 from data.register_form import RegistrationForm
 from data.delete_form import DeleteForm
+import random
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -50,7 +52,7 @@ def index():
 
 @app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit(user_id):
-    if current_user._get_current_object().is_admin:
+    if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = RegistrationForm()
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == user_id).first()
@@ -76,8 +78,9 @@ def edit(user_id):
 
 @app.route('/delete/<int:user_id>', methods=['GET', 'POST'])
 def delete(user_id):
-    if current_user._get_current_object().is_admin:
+    if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = DeleteForm()
+        form.confirm.label.text = str(random.randint(0, 19999))
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == user_id).first()
         if form.is_submitted() and str(form.confirm.data) == form.confirm.label.text:
@@ -97,7 +100,7 @@ def admin_():
 
 @app.route('/admin/<int:page_number>')
 def admin(page_number=0):
-    if current_user._get_current_object().is_admin:
+    if current_user.is_authenticated and current_user._get_current_object().is_admin:
         return render_template('admin.html',
                            rating_list=player_top.global_top_player[20 * page_number:20 * (page_number + 1)],
                            page_number=page_number,
@@ -179,3 +182,5 @@ main()
 
 # Именно тут, а не вверху. Важен код выполняющийся внутри кода при импортировании
 import scheduled.update_top as player_top
+update_top_th = threading.Thread(target=player_top.schedule_update)
+update_top_th.start()
