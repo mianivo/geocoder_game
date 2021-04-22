@@ -6,6 +6,6 @@ import random
 
 
 class DeleteForm(FlaskForm):
-    confirm = StringField(str(random.randint(1, 9999)), validators=[DataRequired()])
+    confirm = StringField(str(random.randint(1, 14999)), validators=[DataRequired()])
 
     submit = SubmitField('Удалить')

@@ -1,6 +1,5 @@
 import datetime
 import sqlalchemy
-from sqlalchemy import orm
 from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,7 +16,7 @@ class User(SqlAlchemyBase, UserMixin):
     rating = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     matches_number = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     modifed_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

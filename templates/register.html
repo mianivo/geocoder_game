@@ -3,6 +3,7 @@
 {% block content %}
     <h1>Регистрация</h1>
     <form action="" method="post">
+        {{ form.hidden_tag() }}
         <p>
             {{ form.nickname.label }}<br>
             {{ form.nickname(class="form-control") }}<br>

@@ -2,6 +2,7 @@
 
 {% block content %}
     <form action="" method="post">
+            {{ form.hidden_tag() }}
         <div class="alert alert-danger" role="alert">
             Вы уверены, что хотите удалить пользователя
             логин - {{ user.login }}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Рейтинг</h1>
+    <h1>Пользователи</h1>
     <p>
         {% for i in range(0, 5 if page_number > 6 else 0) %}
             <a class="alert-btn btn-link" href="/admin/{{ i }}">
@@ -23,6 +23,48 @@
             </a>
         {% endfor %}
     </p>
+    <h2>Поиск пользователей по параметрам</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.login.label }}<br>
+            {{ form.login(class="form-control") }}<br>
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.nickname.label }}<br>
+            {{ form.nickname(class="form-control") }}<br>
+            {% for error in form.nickname.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.rating.label }}<br>
+            {{ form.rating(class="form-control") }}<br>
+            {% for error in form.rating.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.matches_number.label }}<br>
+            {{ form.matches_number(class="form-control") }}<br>
+            {% for error in form.matches_number.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+
+    </form>
     <table>
     {% for nickname, raitng, matches_number, login, id in rating_list %}
         <tr>
