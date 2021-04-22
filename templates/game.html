@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <meta charset="utf-8">
+    <style>
+        html, body, .player {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        html, body, #map {
+            width: 70%; height: 80%; padding: 0; margin: 0, z-index: 1, position: absolute, top: 0, left: 0;
+        }
+    </style>
+     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=17876294-8d0e-4a4a-a0f0-ac31995a525f"></script>
+     <script>ymaps.ready(function () {
+    // Для начала проверим, поддерживает ли плеер браузер пользователя.
+    if (!ymaps.panorama.isSupported()) {
+        return;
+    }
+
+    // Ищем панораму в переданной точке.
+    ymaps.panorama.locate([{{ coords }}]).done(
+        function (panoramas) {
+            // Убеждаемся, что найдена хотя бы одна панорама.
+            if (panoramas.length > 0) {
+                // Создаем плеер с одной из полученных панорам.
+                var player = new ymaps.panorama.Player(
+                        'player1',
+                        panoramas[0],
+                        { direction: [256, 16], suppressMapOpenBlock: true, controls: []}
+                    );
+            } else {window.location.reload(true)
+        },
+        function (error) {
+            // Если что-то пошло не так, сообщим об этом пользователю.
+            alert(error.message);
+        }
+    );
+});
+</script>
+     <script>ymaps.ready(init);
+var myMap;
+
+function init () {
+    myMap = new ymaps.Map("map", {
+        center: [57.5262, 38.3061], // Углич
+        zoom: 11
+    }, {
+        balloonMaxWidth: 200,
+        searchControlProvider: 'yandex#search'
+    });
+
+    // Обработка события, возникающего при щелчке
+    // левой кнопкой мыши в любой точке карты.
+    // При возникновении такого события откроем балун.
+    myMap.events.add('click', function (e) {
+        if (!myMap.balloon.isOpen()) {
+            var coords = e.get('coords');
+            myMap.balloon.open(coords, {
+                contentBody:'<p>Координаты щелчка: ' + [
+                    coords[0].toPrecision(6),
+                    coords[1].toPrecision(6)
+                    ].join(', ') + '</p>',
+                contentFooter:'<sup>Щелкните еще раз</sup>'
+            });
+        }
+        else {
+            myMap.balloon.close();
+        }
+    });
+
+    // Обработка события, возникающего при щелчке
+    // правой кнопки мыши в любой точке карты.
+    // При возникновении такого события покажем всплывающую подсказку
+    // в точке щелчка.
+    myMap.events.add('contextmenu', function (e) {
+        myMap.hint.open(e.get('coords'), 'Кто-то щелкнул правой кнопкой');
+    });
+
+    // Скрываем хинт при открытии балуна.
+    myMap.events.add('balloonopen', function (e) {
+        myMap.hint.close();
+    });
+}</script>
+ </head>
+ <body>
+ <div id="player1" class="player"></div>
+ <div id="map"></div>
+ </body>
+</html>
