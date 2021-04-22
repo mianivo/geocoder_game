@@ -12,7 +12,7 @@ from data.search_form import SearchForm
 import threading
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SECRET_KEY'] = 'some_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
