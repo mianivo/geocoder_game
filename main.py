@@ -10,6 +10,7 @@ from data.register_form import RegistrationForm
 from data.delete_form import DeleteForm
 from data.search_form import SearchForm
 import threading
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
