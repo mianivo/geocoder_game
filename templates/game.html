@@ -14,8 +14,15 @@
         html, body, #map {
             width: 70%; height: 80%; padding: 0; margin: 0, z-index: 1, position: absolute, top: 0, left: 0;
         }
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
     </style>
      <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=17876294-8d0e-4a4a-a0f0-ac31995a525f"></script>
+     <script>var y = {{ y }};
+    var x = {{ x }}</script>
      <script>ymaps.ready(function () {
     // Для начала проверим, поддерживает ли плеер браузер пользователя.
     if (!ymaps.panorama.isSupported()) {
@@ -33,7 +40,7 @@
                         panoramas[0],
                         { direction: [256, 16], suppressMapOpenBlock: true, controls: []}
                     );
-            } else {window.location.reload(true)
+            } else {window.location.reload(true)}
         },
         function (error) {
             // Если что-то пошло не так, сообщим об этом пользователю.
@@ -44,6 +51,7 @@
 </script>
      <script>ymaps.ready(init);
 var myMap;
+var coords1;
 
 function init () {
     myMap = new ymaps.Map("map", {
@@ -59,11 +67,11 @@ function init () {
     // При возникновении такого события откроем балун.
     myMap.events.add('click', function (e) {
         if (!myMap.balloon.isOpen()) {
-            var coords = e.get('coords');
-            myMap.balloon.open(coords, {
+            coords1 = e.get('coords');
+            myMap.balloon.open(coords1, {
                 contentBody:'<p>Координаты щелчка: ' + [
-                    coords[0].toPrecision(6),
-                    coords[1].toPrecision(6)
+                    coords1[0].toPrecision(6),
+                    coords1[1].toPrecision(6)
                     ].join(', ') + '</p>',
                 contentFooter:'<sup>Щелкните еще раз</sup>'
             });
@@ -73,22 +81,62 @@ function init () {
         }
     });
 
-    // Обработка события, возникающего при щелчке
-    // правой кнопки мыши в любой точке карты.
-    // При возникновении такого события покажем всплывающую подсказку
-    // в точке щелчка.
-    myMap.events.add('contextmenu', function (e) {
-        myMap.hint.open(e.get('coords'), 'Кто-то щелкнул правой кнопкой');
-    });
 
     // Скрываем хинт при открытии балуна.
     myMap.events.add('balloonopen', function (e) {
         myMap.hint.close();
     });
 }</script>
+     <script>
+     function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1);
+  var a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ;
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
+</script>
+     <script>window.onload = init;
+function pressed(){
+       document.getElementById('rating').value = [coords1[0].toPrecision(6),
+                    coords1[1].toPrecision(6)
+                    ].join(', ');
+}
+function init(){
+    var button = document.getElementById("btn1")
+    button.onclick = pressed;
+}</script>
  </head>
  <body>
  <div id="player1" class="player"></div>
  <div id="map"></div>
+ <button type="button" id="btn1" class="btn btn-success btn-lg btn-block">Подтвердить</button>
+
+
+    <form method="POST" action="">
+        <div>
+            {{ form.csrf_token }}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for=""> {{ form.rating.label }}</label>
+                {{ form.rating }}
+                {{ form.submit(class="btn btn-primary")}}
+            </div>
+        </div>
+    </form>
+
+
  </body>
 </html>
