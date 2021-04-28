@@ -5,11 +5,12 @@
     <title>Title</title>
 </head>
 <body>
-    {{ score }}
+    <h2>{{ gamenum }} раунд</h2>
+    <h3>Общий счет: {{ gamescore }}</h3>
+    <h3>Расстояние: {{ dist }}</h3>
+    <h3>Получено {{ score }} очков</h3>
     <br>
     <img src={{ pts }}>
-    <h3>Общий счет: {{ gamescore }}</h3>
-    <h3>{{ gamenum }}/5</h3>
     <a href="/game" title="Начать новую игру" class="btn btn-primary">Начать новую игру</a>
 </body>
 </html>
