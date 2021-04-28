@@ -9,10 +9,31 @@
             margin: 0;
             padding: 0;
             position: relative;
+            z-index: 1;
         }
-
-        html, body, #map {
-            width: 70%; height: 80%; padding: 0; margin: 0, z-index: 1, position: absolute, top: 0, left: 0;
+<!--        #map {-->
+<!--            width: 430px;-->
+<!--            height: 320px;-->
+<!--            right: 2rem;-->
+<!--            padding-top: 6.5rem;-->
+<!--            margin: 0;-->
+<!--            z-index: 2;-->
+<!--            position: absolute;-->
+<!--            bottom: 1rem;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+        #map {
+            width: 320px;
+            height: 300px;
+        }
+        .widgets {
+            right: 2rem;
+            padding-top: 6.5rem;
+            margin: 0;
+            z-index: 2;
+            position: absolute;
+            bottom: 1rem;
+            box-sizing: border-box;
         }
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
@@ -22,7 +43,7 @@
     </style>
      <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=17876294-8d0e-4a4a-a0f0-ac31995a525f"></script>
      <script>var y = {{ y }};
-    var x = {{ x }}</script>
+    var x = {{ x }};</script>
      <script>ymaps.ready(function () {
     // Для начала проверим, поддерживает ли плеер браузер пользователя.
     if (!ymaps.panorama.isSupported()) {
@@ -52,6 +73,7 @@
      <script>ymaps.ready(init);
 var myMap;
 var coords1;
+var button = document.getElementById("submit");
 
 function init () {
     myMap = new ymaps.Map("map", {
@@ -82,10 +104,10 @@ function init () {
     });
 
 
-    // Скрываем хинт при открытии балуна.
-    myMap.events.add('balloonopen', function (e) {
-        myMap.hint.close();
-    });
+<!--    // Скрываем хинт при открытии балуна.-->
+<!--    myMap.events.add('balloonopen', function (e) {-->
+<!--        myMap.hint.close();-->
+<!--    });-->
 }</script>
      <script>
      function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
@@ -114,28 +136,31 @@ function pressed(){
                     ].join(', ');
 }
 function init(){
-    var button = document.getElementById("btn1")
+    var button = document.getElementById("submit")
     button.onclick = pressed;
 }</script>
  </head>
  <body>
+ <header>
+    <nav class="navbar navbar-light bg-light">
+    </nav>
+</header>
  <div id="player1" class="player"></div>
- <div id="map"></div>
- <button type="button" id="btn1" class="btn btn-success btn-lg btn-block">Подтвердить</button>
+ <div class="widgets">
+     <div id="map"></div>
 
-
-    <form method="POST" action="">
-        <div>
-            {{ form.csrf_token }}
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label for=""> {{ form.rating.label }}</label>
-                {{ form.rating }}
-                {{ form.submit(class="btn btn-primary")}}
+        <form method="POST" action="">
+            <div>
+                {{ form.csrf_token }}
             </div>
-        </div>
-    </form>
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.rating }}
+                    {{ form.submit(class="btn btn-primary")}}
+                </div>
+            </div>
+        </form>
+ </div>
 
 
  </body>

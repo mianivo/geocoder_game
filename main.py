@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, session
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import sqlalchemy
 
@@ -38,12 +38,16 @@ def load_user(user_id):
 @app.route('/logout')
 @login_required
 def logout():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     logout_user()
     return redirect("/")
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     form = LoginForm()
     if form.is_submitted():
         db_sess = db_session.create_session()
@@ -59,11 +63,15 @@ def login():
 
 @app.route('/')
 def index():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     return render_template('index.html', title='Игра панорама')
 
 
 @app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit(user_id):
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = RegistrationForm()
         db_sess = db_session.create_session()
@@ -90,6 +98,8 @@ def edit(user_id):
 
 @app.route('/delete/<int:user_id>', methods=['GET', 'POST'])
 def delete(user_id):
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = DeleteForm()
         db_sess = db_session.create_session()
@@ -110,11 +120,15 @@ def delete(user_id):
 
 @app.route('/admin')
 def admin_():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     return redirect('/admin/0')
 
 
 @app.route('/admin/<int:page_number>', methods=['GET', 'POST'])
 def admin(page_number=0):
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = SearchForm()
         if request.method == 'POST':
@@ -150,6 +164,8 @@ def admin(page_number=0):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     form = RegistrationForm()
     if form.is_submitted():
         db_sess = db_session.create_session()
@@ -180,11 +196,15 @@ def register():
 
 @app.route('/not_authenticated')
 def not_authenticated():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     return render_template('not_authenticated.html', title='Не авторизирован')
 
 
 @app.route('/personal_page', methods=['GET', 'POST'])
 def personal_page():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     if not current_user.is_authenticated:
         return redirect('/not_authenticated')
     else:
@@ -203,11 +223,15 @@ def personal_page():
 
 @app.route('/global_rating')
 def rating_():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     return redirect('/global_rating/0')
 
 
 @app.route('/global_rating/<int:page_number>')
 def rating(page_number=0):
+    session["gamenum"] = 0
+    session["gamescore"] = 0
     return render_template('rating.html',
                            rating_list=[(nickname, raitng, matches_number) for nickname, raitng, matches_number, _, _ in
                                         player_top.global_top_player[20 * page_number:20 * (page_number + 1)]],
@@ -498,13 +522,23 @@ def game():
     y += random.randint(-100, 100) / 10000
     x += random.randint(-100, 100) / 10000
     if form.validate_on_submit():
+        session.pop('visits_count', None)
+        gamenum = session.get('gamenum', 0)
+        gamescore = session.get('gamescore', 0)
+        gamenum += 1
         coords = [float(i) for i in form.rating.data.split(", ")]
         dist = getdistance([y, x], coords)
         if dist:
             score = int(5000 / (dist + 1))
-            print(dist)
-            print(f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[0]},{coords[1]},pm2db~{y},{x},pm2rd&l=map")
-            return render_template('roundresult.html', score=score, pts=f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[1]},{coords[0]}~{x},{y}&l=map")
+            gamescore += score
+            if gamenum != 5:
+                session["gamenum"] = gamenum
+                session["gamescore"] = gamescore
+                return render_template('roundresult.html', dist=dist, score=score, pts=f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[1]},{coords[0]}~{x},{y}&l=map", gamescore=gamescore, gamenum=gamenum)
+            else:
+                session["gamenum"] = 0
+                session["gamescore"] = 0
+                return f"{gamescore}"
     else:
         return render_template('game.html', coords=f"{y}, {x}", form=form)
 
