@@ -28,6 +28,10 @@
             box-sizing: border-box;
             background: #f9f6f3;
         }
+        #rating {
+            width: 0%;
+            visibility: hidden;
+        }
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -149,8 +153,8 @@ function init(){
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    {{ form.rating }}
                     {{ form.submit(class="btn btn-primary")}}
+                    {{ form.rating }}
                 </div>
             </div>
         </form>

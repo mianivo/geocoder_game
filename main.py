@@ -278,7 +278,7 @@ def game():
         coords = [float(i) for i in form.rating.data.split(", ")]
         dist = getdistance([y, x], coords)
         if dist:
-            score = int(5000 / (dist + 1))
+            score = max(int(5000 - dist), 0)
             gamescore += score
             if current_user.is_authenticated:
                 # если пользователь авторизирован то записываем его раунд и счет в базу данных
