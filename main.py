@@ -234,18 +234,23 @@ def rating(page_number=0):
 def game():
     db_sess = db_session.create_session()
     form = ConfirmPlace()
-    p = random.randint(1, db_sess.query(PanoramaPoints).count())
-    p = db_sess.query(PanoramaPoints).filter(PanoramaPoints.id == p).first()
-    y = p.y
-    x = p.x
-    y = float(y)
-    x = float(x)
-    y += random.randint(-100, 100) / 10000
-    x += random.randint(-100, 100) / 10000
+    if request.method == "GET":
+        p = random.randint(1, db_sess.query(PanoramaPoints).count())
+        p = db_sess.query(PanoramaPoints).filter(PanoramaPoints.id == p).first()
+        y = p.y
+        x = p.x
+        y = float(y)
+        x = float(x)
+        y += random.randint(-100, 100) / 10000
+        x += random.randint(-100, 100) / 10000
+        session["x"] = x
+        session["y"] = y
     if form.validate_on_submit():
         gamenum = session.get('gamenum', 0)
         gamescore = session.get('gamescore', 0)
         rounds = session.get('rounds', [])
+        x = session.get("x", 0)
+        y = session.get("y", 0)
         gamenum += 1
         coords = [float(i) for i in form.rating.data.split(", ")]
         dist = getdistance([y, x], coords)
