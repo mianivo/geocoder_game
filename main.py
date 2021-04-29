@@ -1,20 +1,34 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, session
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import sqlalchemy
 
 from data import db_session
 from data.users import User
+from data.rounds import Rounds
 from data.games import Games
+from data.panorama_points import PanoramaPoints
 from data.login_form import LoginForm
 from data.register_form import RegistrationForm
 from data.delete_form import DeleteForm
 from data.search_form import SearchForm
+from data.game_button import ConfirmPlace
 import threading
+import random
+import math
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'some_secret_key'
+app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+def getdistance(c1, c2):
+    x = (c2[1] - c1[1])
+    y = (c2[0] - c1[0])
+    y *= math.cos(math.radians((c2[1] + c1[1])/2))
+    x *= 111
+    y *= 111
+    return math.sqrt(x**2 + y**2)
 
 
 @login_manager.user_loader
@@ -26,12 +40,14 @@ def load_user(user_id):
 @app.route('/logout')
 @login_required
 def logout():
+    clear_session()
     logout_user()
     return redirect("/")
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    clear_session()
     form = LoginForm()
     if form.is_submitted():
         db_sess = db_session.create_session()
@@ -47,21 +63,26 @@ def login():
 
 @app.route('/')
 def index():
+    clear_session()
     return render_template('index.html', title='Игра панорама')
 
 
 @app.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit(user_id):
+    clear_session()
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = RegistrationForm()
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == user_id).first()
         if not form.is_submitted():
+            # Если не нажата кнопка на странице редактирования
+            # Автоматически заполняются поля формы
             form.login.data = user.login
             form.nickname.data = user.nickname
             form.rating.data = user.rating
             form.matches_number.data = user.matches_number
         else:
+            # Если нажата запоминаем изменения
             user.login = form.login.data
             user.nickname = form.nickname.data
             user.rating = form.rating.data
@@ -78,6 +99,8 @@ def edit(user_id):
 
 @app.route('/delete/<int:user_id>', methods=['GET', 'POST'])
 def delete(user_id):
+    '''Обработчик удаления пользователей'''
+    clear_session()
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = DeleteForm()
         db_sess = db_session.create_session()
@@ -86,6 +109,7 @@ def delete(user_id):
             form.confirm.errors = ('Пользователь уже удален',)
         if user and form.is_submitted():
             if str(form.confirm.data) == form.confirm.label.text:
+                # Проверка на совпадение числа в label и числа в поле
                 db_sess.delete(user)
                 db_sess.commit()
                 return redirect('/admin/0')
@@ -98,11 +122,15 @@ def delete(user_id):
 
 @app.route('/admin')
 def admin_():
+    clear_session()
     return redirect('/admin/0')
 
 
 @app.route('/admin/<int:page_number>', methods=['GET', 'POST'])
 def admin(page_number=0):
+    '''Админка. Имеется поиск пользователей по параметрам. Все параметры ищутся только на вхождение подстрок.
+    Все найденные пользователи отображаются на 1 странице, сколько бы их не было.'''
+    clear_session()
     if current_user.is_authenticated and current_user._get_current_object().is_admin:
         form = SearchForm()
         if request.method == 'POST':
@@ -138,6 +166,8 @@ def admin(page_number=0):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    '''Регистрация'''
+    clear_session()
     form = RegistrationForm()
     if form.is_submitted():
         db_sess = db_session.create_session()
@@ -168,11 +198,16 @@ def register():
 
 @app.route('/not_authenticated')
 def not_authenticated():
+    clear_session()
     return render_template('not_authenticated.html', title='Не авторизирован')
 
 
 @app.route('/personal_page', methods=['GET', 'POST'])
 def personal_page():
+    '''Страница отображает ник, логин, рейтинг, кол-во матчей пользователя.
+     Также отображаются последние игры пользователя.
+     Если пользователь - администратор, также присутсвует кнопка войти в админку.'''
+    clear_session()
     if not current_user.is_authenticated:
         return redirect('/not_authenticated')
     else:
@@ -181,7 +216,7 @@ def personal_page():
         matches_number = current_user.matches_number
         rating = current_user.rating
         db_sess = db_session.create_session()
-        user_game_list = db_sess.query(Games).filter(Games.user_id == current_user.id)
+        user_game_list = db_sess.query(Rounds).filter(Rounds.user_id == current_user.id)
         if len(list(user_game_list)) > 20:
             user_game_list = user_game_list[:20]
         return render_template('personal_page.html', nickname=nickname,
@@ -191,17 +226,87 @@ def personal_page():
 
 @app.route('/global_rating')
 def rating_():
+    '''Отображает рейтинг, вместе с переходами по страницам.'''
+    # Условия смены страниц находятся внутри шаблона
+    clear_session()
     return redirect('/global_rating/0')
 
 
 @app.route('/global_rating/<int:page_number>')
 def rating(page_number=0):
+    clear_session()
     return render_template('rating.html',
                            rating_list=[(nickname, raitng, matches_number) for nickname, raitng, matches_number, _, _ in
                                         player_top.global_top_player[20 * page_number:20 * (page_number + 1)]],
                            page_number=page_number,
                            max_page_number=player_top.global_top_player_len // 20 +
                                            bool(player_top.global_top_player_len % 20), title='Рейтинг')
+
+
+@app.route('/game', methods=['GET', 'POST'])
+def game():
+    db_sess = db_session.create_session()
+    form = ConfirmPlace()
+    if request.method == "GET":
+        p = random.randint(1, db_sess.query(PanoramaPoints).count())
+        p = db_sess.query(PanoramaPoints).filter(PanoramaPoints.id == p).first()
+        y = p.y
+        x = p.x
+        y = float(y)
+        x = float(x)
+        y += random.randint(-100, 100) / 10000
+        x += random.randint(-100, 100) / 10000
+        session["x"] = x
+        session["y"] = y
+    if form.validate_on_submit():
+        gamenum = session.get('gamenum', 0)
+        gamescore = session.get('gamescore', 0)
+        rounds = session.get('rounds', [])
+        x = session.get("x", 0)
+        y = session.get("y", 0)
+        gamenum += 1
+        coords = [float(i) for i in form.rating.data.split(", ")]
+        dist = getdistance([y, x], coords)
+        if dist:
+            score = int(5000 / (dist + 1))
+            gamescore += score
+            if current_user.is_authenticated:
+                curround = Rounds()
+                curround.start_point = f"{x}%{y}"
+                curround.user_input_point = f"{coords[1]}%{coords[0]}"
+                curround.rating = score
+                db_sess.add(curround)
+                db_sess.commit()
+                roundid = curround.id
+                rounds.append(roundid)
+                session["rounds"] = rounds
+            if gamenum != 5:
+                session["gamenum"] = gamenum
+                session["gamescore"] = gamescore
+                return render_template('roundresult.html', dist=dist, score=score,
+                                       pts=f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[1]},{coords[0]}~{x},{y}&l=map",
+                                       gamescore=gamescore, gamenum=gamenum)
+            else:
+                if current_user.is_authenticated:
+                    curgame = Games()
+                    curgame.round1 = rounds[0]
+                    curgame.round2 = rounds[1]
+                    curgame.round3 = rounds[2]
+                    curgame.round4 = rounds[3]
+                    curgame.round5 = rounds[4]
+                    curgame.rating = gamescore
+                    curgame.user_id = current_user._get_current_object().id
+                    db_sess.add(curgame)
+                    db_sess.commit()
+                clear_session()
+                return render_template('gameresult.html', dist=dist, score=score,
+                                       pts=f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[1]},{coords[0]}~{x},{y}&l=map",
+                                       gamescore=gamescore, gamenum=gamenum)
+
+def clear_session():
+    session["gamenum"] = 0
+    session["gamescore"] = 0
+    session["rounds"] = []
 
 
 def main():
@@ -214,5 +319,6 @@ main()
 # Именно тут, а не вверху. Важен код выполняющийся внутри кода при импортировании
 import scheduled.update_top as player_top
 
+# создается поток, чтобы обновлять список пользователей
 update_top_th = threading.Thread(target=player_top.schedule_update)
 update_top_th.start()

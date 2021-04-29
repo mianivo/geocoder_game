@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 
 
 class SearchForm(FlaskForm):
+    '''Форма используется в админке'''
     nickname = StringField('Ник')
     login = StringField('Логин')
     rating = IntegerField('Рейтинг')
