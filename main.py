@@ -322,7 +322,7 @@ def game():
                     db_sess.commit()
                 clear_session()
                 return render_template('gameresult.html', dist=dist, score=score,
-                                       x1=coords[1], y1=coords[0], x2=x, y2=y,
+                                       y1=coords[1], x1=coords[0], y2=x, x2=y,
                                        gamescore=gamescore, gamenum=gamenum)
     else:
         return render_template('game.html', coords=f"{y}, {x}", form=form)
