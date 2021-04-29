@@ -17,7 +17,6 @@
             display: grid;
             grid-template-rows: minmax(600px,1fr) auto;
             grid-template-columns: 1fr auto;
-            background: var(--color-beige-20);
         }
         #map {
             grid-column: 1;
@@ -66,6 +65,10 @@ function init () {
         balloonMaxWidth: 200,
         searchControlProvider: 'yandex#search'
     });
+    var myPlacemark1 = new ymaps.Placemark([{{ x1 }}, {{ y1 }}]);
+    myMap.geoObjects.add(myPlacemark1);
+    var myPlacemark2 = new ymaps.Placemark([{{ x2 }}, {{ y2 }}]);
+    myMap.geoObjects.add(myPlacemark2);
 }</script>
 </head>
 <body>
