@@ -254,7 +254,7 @@ def rating(page_number=0):
 def game():
     '''Отображает страницу с игрой и результатами раундов/игр'''
     db_sess = db_session.create_session()
-    form = ConfirmPlace() # Кнопка отправки выбранных координат
+    form = ConfirmPlace()  # Кнопка отправки выбранных координат
     if request.method == "GET":
         # выбираются рандомные координаты из базы данных
         p = random.randint(1, db_sess.query(PanoramaPoints).count())
@@ -278,7 +278,7 @@ def game():
         coords = [float(i) for i in form.rating.data.split(", ")]
         dist = getdistance([y, x], coords)
         if dist:
-            score = max(int(5000 - dist), 0)
+            score = max(int((5000 - dist) / 5), 0)
             gamescore += score
             if current_user.is_authenticated:
                 # если пользователь авторизирован то записываем его раунд и счет в базу данных
@@ -303,14 +303,22 @@ def game():
                 if current_user.is_authenticated:
                     # если пользователь авторизирован то записываем его игру и счет в базу данных
                     curgame = Games()
+                    userid = current_user._get_current_object().id
                     curgame.round1 = rounds[0]
                     curgame.round2 = rounds[1]
                     curgame.round3 = rounds[2]
                     curgame.round4 = rounds[3]
                     curgame.round5 = rounds[4]
                     curgame.rating = gamescore
-                    curgame.user_id = current_user._get_current_object().id
+                    curgame.user_id = userid
                     db_sess.add(curgame)
+                    db_sess.commit()
+                    if gamescore > int(current_user._get_current_object().rating):
+                        current_user._get_current_object().rating = gamescore
+                    db_sess.merge(current_user._get_current_object())
+                    db_sess.commit()
+                    current_user._get_current_object().matches_number = current_user._get_current_object().matches_number + 1
+                    db_sess.merge(current_user._get_current_object())
                     db_sess.commit()
                 clear_session()
                 return render_template('gameresult.html', dist=dist, score=score,

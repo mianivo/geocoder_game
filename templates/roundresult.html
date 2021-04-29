@@ -35,13 +35,50 @@
         .widgets {
             padding-top: 2px;
             padding-right: 2rem;
-            padding-bottom: 2px;
+            padding-bottom: 2rem;
             padding-left: 2rem;
             width: 100%;
             box-sizing: border-box;
             margin: -2rem auto 1rem;
             max-width: 60rem;
             background: #fff;
+        }
+        button {
+            --background-color: #568209;
+            --active-background-color: #70a80c;
+            --font-color: #fff;
+            --font-size: 1rem;
+            --height: 2rem;
+            --icon-size: 1.25rem;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: inline-block;
+            position: relative;
+            background: var(--background-color);
+            color: var(--font-color);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            outline: none;
+            border: none;
+            padding: 0 2rem;
+            font-family: Open Sans,helvetica;
+            text-rendering: optimizeLegibility;
+            font-size: var(--font-size);
+            font-weight: 700;
+            line-height: var(--height);
+            height: var(--height);
+            text-align: center;
+            border-radius: 2rem;
+            transition: transform .05s ease-in-out,background-color .1s ease;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+        button:hover {
+            background-color: var(--active-background-color);
+            text-decoration: none;
         }
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
@@ -76,12 +113,11 @@ function init () {
         <div id="map"></div>
         <div class="bottomresults">
             <div class="widgets">
-                <h2>{{ gamenum }} раунд</h2>
-                <h3>Общий счет: {{ gamescore }}</h3>
-                <h3>Расстояние: {{ dist }}</h3>
-                <h3>Получено {{ score }} очков</h3>
-                <br>
-                <a href="/game" title="Продолжить" class="btn btn-primary">Продолжить</a>
+                <h2 style="text-align: center;">{{ gamenum }} раунд</h2>
+                <h3 style="text-align: center;">Общий счет: {{ gamescore }}</h3>
+                <h3 style="text-align: center;">Расстояние: {{ dist }}</h3>
+                <h3 style="text-align: center;">Получено {{ score }} очков</h3>
+                <a href="/game" title="Продолжить"><button>начать следущий раунд</button></a>
             </div>
         </div>
     </div>
