@@ -3,14 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        html {
+            background: #f9f6f3;
+        }
+        .result {
+            position: fixed;
+            width: 100%;
+            height: 100%
+            top: var(--layout-header-height);
+            left: 0;
+            overflow: auto;
+            display: grid;
+            grid-template-rows: minmax(600px,1fr) auto;
+            grid-template-columns: 1fr auto;
+            background: var(--color-beige-20);
+        }
+        #map {
+            grid-column: 1;
+            grid-row: 1;
+            width: 100%;
+            z-index: 1;
+        }
+        .bottomresults {
+            grid-column: 1;
+            grid-row: 2;
+            max-height: 470px;
+            width: 100%;
+            z-index: 20;
+            background: #f9f6f3;
+        }
+        .widgets {
+            padding-top: 2px;
+            padding-right: 2rem;
+            padding-bottom: 2px;
+            padding-left: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin: -2rem auto 1rem;
+            max-width: 60rem;
+            background: #fff;
+        }
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    </style>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=17876294-8d0e-4a4a-a0f0-ac31995a525f"></script>
+         <script>ymaps.ready(init);
+var myMap;
+var coords1;
+var button = document.getElementById("submit");
+
+function init () {
+    myMap = new ymaps.Map("map", {
+        center: [63.0920, 91.0405],
+        zoom: 4,
+        controls: [],
+        type: "yandex#hybrid"
+    }, {
+        balloonMaxWidth: 200,
+        searchControlProvider: 'yandex#search'
+    });
+}</script>
 </head>
 <body>
-    <h2>{{ gamenum }} раунд</h2>
-    <h3>Общий счет: {{ gamescore }}</h3>
-    <h3>Расстояние: {{ dist }}</h3>
-    <h3>Получено {{ score }} очков</h3>
-    <br>
-    <img src={{ pts }}>
-    <a href="/game" title="Продолжить" class="btn btn-primary">Продолжить</a>
+    <div class="result">
+        <div id="map"></div>
+        <div class="bottomresults">
+            <div class="widgets">
+                <h2>{{ gamenum }} раунд</h2>
+                <h3>Общий счет: {{ gamescore }}</h3>
+                <h3>Расстояние: {{ dist }}</h3>
+                <h3>Получено {{ score }} очков</h3>
+                <br>
+                <a href="/game" title="Продолжить" class="btn btn-primary">Продолжить</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

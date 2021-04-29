@@ -51,22 +51,35 @@
 
 
         </table>
-                    {% if user_game_list %}
-                <h1>Последние игры:</h1>
-                {% for game in user_game_list %}
-                    <div class="alert alert-info" role="alert">
+        {% if user_game_list %}
+            <h1>Последние игры:</h1>
+            {% for game, rounds_list in user_game_list %}
+                <div class="alert alert-dark" role="alert">
+                    id игры - {{ game.id }} <br>
+                    Дата игры - {{ game.modifed_date }} <br>
+                <div class="alert alert-warning" role="alert">
+                    Результат за все раунды - {{ game.rating }}
+                       </div>
+
+                    {% for round in rounds_list %}
+                        <div class="alert alert-primary" role="alert">
+                        <div class="alert alert-success" role="alert">
+                            Рейтинг полученный за раунд - {{ round.rating }}
+                        </div>
                         <a class="alert-btn btn-link"
-                           href="https://yandex.ru/maps/?ll={{ game.start_point }}&z=13">
-                            Точка выбранная игрой - {{ game.start_point }}
+                           href="https://yandex.ru/maps/?ll={{ round.start_point }}&z=13">
+                            Точка выбранная игрой - {{ round.start_point }}
                         </a><br>
                         <a class="alert-btn btn-link"
-                           href="https://yandex.ru/maps/?ll={{ game.user_input_point }}&z=13">
-                            Точка выбранная Вами - {{ game.user_input_point }}
+                           href="https://yandex.ru/maps/?ll={{ round.user_input_point }}&z=13">
+                            Точка выбранная Вами - {{ round.user_input_point }}
                         </a><br>
-                        Полученный рейтинг - {{ game.rating }}<br>
-                    </div>
-                {% endfor %}
-            {% endif %}
+                        </div>
+
+                    {% endfor %}
+                  </div>
+            {% endfor %}
+        {% endif %}
     {% endif %}
 
 {% endblock %}

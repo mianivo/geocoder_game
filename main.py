@@ -36,7 +36,6 @@ def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -216,12 +215,20 @@ def personal_page():
         matches_number = current_user.matches_number
         rating = current_user.rating
         db_sess = db_session.create_session()
-        user_game_list = db_sess.query(Rounds).filter(Rounds.user_id == current_user.id)
+        user_game_list = db_sess.query(Games).filter(Games.user_id == current_user.id)
         if len(list(user_game_list)) > 20:
             user_game_list = user_game_list[:20]
+        game_and_rounds_list = []
+        for game in user_game_list:
+            rounds_list = []
+            for round_id in (game.round1, game.round2, game.round3, game.round4, game.round5):
+                round = db_sess.query(Rounds).filter(Rounds.id == round_id).first()
+                rounds_list.append(round)
+            game_and_rounds_list.append((game, rounds_list))
+            print(rounds_list)
         return render_template('personal_page.html', nickname=nickname,
                                login=login, matches_number=matches_number, rating=rating, current_user=current_user,
-                               user_game_list=user_game_list, title='Личная информация')
+                               user_game_list=game_and_rounds_list, title='Личная информация')
 
 
 @app.route('/global_rating')
@@ -272,8 +279,8 @@ def game():
             gamescore += score
             if current_user.is_authenticated:
                 curround = Rounds()
-                curround.start_point = f"{x}%{y}"
-                curround.user_input_point = f"{coords[1]}%{coords[0]}"
+                curround.start_point = f"{x},{y}"
+                curround.user_input_point = f"{coords[1]},{coords[0]}"
                 curround.rating = score
                 db_sess.add(curround)
                 db_sess.commit()
@@ -302,6 +309,8 @@ def game():
                 return render_template('gameresult.html', dist=dist, score=score,
                                        pts=f"http://static-maps.yandex.ru/1.x/?ll=99.505405,61.6986538&spn=40,50&pt={coords[1]},{coords[0]}~{x},{y}&l=map",
                                        gamescore=gamescore, gamenum=gamenum)
+    else:
+        return render_template('game.html', coords=f"{y}, {x}", form=form)
 
 def clear_session():
     session["gamenum"] = 0
